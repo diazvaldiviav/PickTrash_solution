@@ -12,6 +12,9 @@ namespace WebApplication1.Models.Domain
         public string Name { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
         public string PhoneNumber { get; set; } = string.Empty;
+        public string? PasswordResetToken { get; set; }
+        public DateTime? PasswordResetTokenExpiry { get; set; }
+        public bool IsEmailVerified { get; set; }
 
         // Relaciones
         public Client? Client { get; set; }
