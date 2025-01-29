@@ -3,9 +3,10 @@
     public class Driver
     {
         public int Id { get; set; }
-        public bool IsActive { get; set; }
+        public bool IsAvailable { get; set; }
         public decimal Latitude { get; set; }
         public decimal Longitude { get; set; }
+        public int Rating { get; set; }
 
         // Relación con User
         public int UserId { get; set; }

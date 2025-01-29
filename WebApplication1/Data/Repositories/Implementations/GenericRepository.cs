@@ -36,8 +36,14 @@ namespace WebApplication1.Data.Repositories.Implementations
             await Task.CompletedTask;
         }
 
-        public virtual async Task DeleteAsync(T entity)
+        public virtual async Task DeleteAsync(int id)
         {
+
+            var entity = await _dbSet.FindAsync(id);
+            if (entity == null)
+                return;
+
+
             _dbSet.Remove(entity);
             await Task.CompletedTask;
         }

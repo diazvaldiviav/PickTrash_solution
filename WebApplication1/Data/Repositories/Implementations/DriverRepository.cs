@@ -42,7 +42,7 @@ namespace WebApplication1.Data.Repositories.Implementations
                 .Include(d => d.User)
                 .Include(d => d.DriverVehicles)
                     .ThenInclude(dv => dv.Vehicle)
-                .Where(d => d.IsActive)
+                .Where(d => d.IsAvailable)
                 .ToListAsync();
         }
 
@@ -56,7 +56,7 @@ namespace WebApplication1.Data.Repositories.Implementations
                 .Include(d => d.User)
                 .Include(d => d.DriverVehicles)
                     .ThenInclude(dv => dv.Vehicle)
-                .Where(d => d.IsActive)
+                .Where(d => d.IsAvailable)
                 .Where(d =>
                     6371 * Math.Acos(
                         Math.Cos(Convert.ToDouble(latitude) * (Math.PI / 180)) *
@@ -85,13 +85,15 @@ namespace WebApplication1.Data.Repositories.Implementations
             if (driver == null)
                 throw new NotFoundException($"Conductor con ID {driverId} no encontrado");
 
-            driver.IsActive = isActive;
+            driver.IsAvailable = isActive;
             await _context.SaveChangesAsync();
         }
 
 
         public async Task AddVehicleToDriverAsync(int driverId, int vehicleId)
         {
+
+            //get driver
             var driver = await _dbSet
                 .Include(d => d.DriverVehicles)
                 .FirstOrDefaultAsync(d => d.Id == driverId);
@@ -103,6 +105,8 @@ namespace WebApplication1.Data.Repositories.Implementations
             if (driver.DriverVehicles.Any(dv => dv.VehicleId == vehicleId))
                 throw new ConflictException("El vehículo ya está asignado a este conductor");
 
+
+            // Crear la relación entre conductor y vehículo
             var driverVehicle = new DriverVehicle
             {
                 DriverId = driverId,
@@ -153,7 +157,7 @@ namespace WebApplication1.Data.Repositories.Implementations
         public async Task<Driver> RegisterDriverAsync(Driver driver)
         {
             // Por defecto, un conductor nuevo está inactivo hasta verificar documentos
-            driver.IsActive = false;
+            driver.IsAvailable = false;
 
             await _dbSet.AddAsync(driver);
             await _context.SaveChangesAsync();
@@ -181,7 +185,7 @@ namespace WebApplication1.Data.Repositories.Implementations
             if (driver == null)
                 throw new NotFoundException("Conductor no encontrado");
 
-            driver.IsActive = true;
+            driver.IsAvailable = true;
             await _context.SaveChangesAsync();
 
             return true;
