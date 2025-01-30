@@ -26,5 +26,11 @@ namespace WebApplication1.Data.Repositories.Interfaces
         Task UpdatePasswordAsync(int userId, string newPasswordHash);
         Task<bool> VerifyEmailAsync(int userId);
         Task<bool> ResetPasswordTokenAsync(string email, string token, DateTime expiryDate);
+
+
+        //Validaciones de rol
+        Task<bool> IsUsernameUniqueForRoleAsync(string username, UserRole role);
+        Task<bool> IsPhoneNumberUniqueForRoleAsync(string phoneNumber, UserRole role);
+        Task<bool> IsEmailUniqueForRoleAsync(string email, UserRole role);
     }
 }

@@ -156,8 +156,8 @@ namespace WebApplication1.Data.Repositories.Implementations
 
         public async Task<Driver> RegisterDriverAsync(Driver driver)
         {
-            // Por defecto, un conductor nuevo está inactivo hasta verificar documentos
-            driver.IsAvailable = false;
+            // Por defecto, un conductor nuevo está inactivo hasta verificar documentos pero sera para mas tarde
+           // driver.IsAvailable = false;
 
             await _dbSet.AddAsync(driver);
             await _context.SaveChangesAsync();

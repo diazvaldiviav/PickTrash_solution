@@ -30,4 +30,20 @@ namespace WebApplication1.Models.Dtos.UserDto
         public UserRole Role { get; set; }
         public string Token { get; set; } = string.Empty;
     }
+
+    public class UserDTO
+    {
+        public int Id { get; set; }
+        public string UserName { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string PhoneNumber { get; set; } = string.Empty;
+        public UserRole Role { get; set; }
+
+        // Propiedades específicas de Client
+        public string? DefaultAddress { get; set; }
+
+        // Propiedades específicas de Driver
+        public bool? IsAvailable { get; set; }
+        public decimal? Rating { get; set; }
+    }
 }

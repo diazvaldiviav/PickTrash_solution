@@ -10,6 +10,7 @@ using System.Text;
 using Serilog;
 using WebApplication1.Data.Repositories.Implementations;
 using WebApplication1.Data.Repositories.Interfaces;
+using Microsoft.OpenApi.Models;
 
 
 
@@ -32,6 +33,7 @@ builder.Host.UseSerilog();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<PickTrashDbContext>(options =>
@@ -62,7 +64,10 @@ builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
 
 //injeection dependencies
-builder.Services.AddScoped<IAuthServices, AuthServices>();
+builder.Services.AddScoped<IAuthServices, AuthService>();
+builder.Services.AddScoped<IUserServices, UserService>();
+builder.Services.AddScoped<IVehicleServices, VehicleService>();
+builder.Services.AddScoped<ITransportCategory, TransportCategoryService>();
 
 
 
@@ -72,6 +77,69 @@ builder.Services.AddScoped<IClientRepository, ClientRepository>();
 builder.Services.AddScoped<IDriverRepository, DriverRepository>();
 builder.Services.AddScoped<IVehicleRepository, VehicleRepository>();
 builder.Services.AddScoped<ITransportCategoryRepository, TransportCategoryRepository>();
+
+// Configuración de CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll",
+        builder =>
+        {
+            builder
+                .AllowAnyOrigin()       // Permite cualquier origen
+                .AllowAnyMethod()       // Permite cualquier método HTTP (GET, POST, etc.)
+                .AllowAnyHeader()       // Permite cualquier encabezado
+        });
+});
+
+
+
+//configuracion de roles y politicas
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("RequireDriverRole", policy =>
+        policy.RequireRole("Driver"));
+});
+
+// Configuración de Swagger
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "PickTrash API",
+        Version = "v1",
+        Description = "API para el sistema de recolección de basura PickTrash"
+    });
+
+    // Configuración de seguridad para Swagger
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. \r\n\r\n" +
+                      "Enter 'Bearer' [space] and then your token in the text input below.\r\n\r\n" +
+                      "Example: \"Bearer 12345abcdef\"",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                },
+                Scheme = "oauth2",
+                Name = "Bearer",
+                In = ParameterLocation.Header,
+            },
+            new List<string>()
+        }
+    });
+});
 
 
 
@@ -97,6 +165,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseCors("AllowAll");
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

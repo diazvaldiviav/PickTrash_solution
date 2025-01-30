@@ -101,13 +101,6 @@ namespace WebApplication1.Data.Repositories.Implementations
         //authenticacion
         public async Task<User> RegisterUserAsync(User user)
         {
-            // Validar unicidad de email y teléfono
-            if (!await IsEmailUniqueAsync(user.Email))
-                throw new BadRequestException("El email ya está registrado");
-
-            if (!await IsPhoneNumberUniqueAsync(user.PhoneNumber))
-                throw new BadRequestException("El número de teléfono ya está registrado");
-
             // Registrar usuario
             await _dbSet.AddAsync(user);
             await _context.SaveChangesAsync();
@@ -131,6 +124,28 @@ namespace WebApplication1.Data.Repositories.Implementations
 
             user.PasswordHash = newPasswordHash;
             await _context.SaveChangesAsync();
+        }
+
+
+        public async Task<bool> IsUsernameUniqueForRoleAsync(string username, UserRole role)
+        {
+            return !await _dbSet
+                .AnyAsync(u => u.UserName.ToLower() == username.ToLower()
+                              && u.Role == role);
+        }
+
+        public async Task<bool> IsPhoneNumberUniqueForRoleAsync(string phoneNumber, UserRole role)
+        {
+            return !await _dbSet
+                .AnyAsync(u => u.PhoneNumber == phoneNumber
+                              && u.Role == role);
+        }
+
+        public async Task<bool> IsEmailUniqueForRoleAsync(string email, UserRole role)
+        {
+            return !await _dbSet
+                .AnyAsync(u => u.Email.ToLower() == email.ToLower()
+                              && u.Role == role);
         }
     }
 }
