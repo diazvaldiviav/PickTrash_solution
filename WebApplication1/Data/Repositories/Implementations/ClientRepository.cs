@@ -7,8 +7,17 @@ namespace WebApplication1.Data.Repositories.Implementations
 {
     public class ClientRepository : GenericRepository<Client>, IClientRepository
     {
-        public ClientRepository(PickTrashDbContext context) : base(context)
+        private readonly ILogger<ClientRepository> _logger;
+        public ClientRepository(PickTrashDbContext context, ILogger<ClientRepository> logger) : base(context)
         {
+            _logger = logger;
+        }
+
+        public override async Task<Client?> GetByIdAsync(int id)
+        {
+            return await _dbSet
+                .Include(c => c.User)
+                .FirstOrDefaultAsync(c => c.UserId == id);
         }
 
         public async Task<Client?> GetWithUserDetailsAsync(int clientId)
@@ -25,12 +34,6 @@ namespace WebApplication1.Data.Repositories.Implementations
                 .FirstOrDefaultAsync(c => c.User.PhoneNumber == phoneNumber);
         }
 
-        public async Task<Client?> GetByUserIdAsync(int userId)
-        {
-            return await _dbSet
-                .Include(c => c.User)
-                .FirstOrDefaultAsync(c => c.UserId == userId);
-        }
 
         public async Task<IEnumerable<Client>> GetAllWithUserDetailsAsync()
         {

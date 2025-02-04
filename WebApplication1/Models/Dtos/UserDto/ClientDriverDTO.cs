@@ -1,4 +1,7 @@
-﻿namespace WebApplication1.Models.Dtos.UserDto
+﻿using System.ComponentModel.DataAnnotations;
+using WebApplication1.Models.Domain;
+
+namespace WebApplication1.Models.Dtos.UserDto
 {
     public class ClientDTO
     {
@@ -18,4 +21,34 @@
         public bool IsAvailable { get; set; }
         public decimal Rating { get; set; }
     }
+
+    public class AvailableDriverDTO
+    {
+        public int Id { get; set; }
+        public string FullName { get; set; }
+        public int Rating { get; set; }
+        public double Distance { get; set; } // Distancia al cliente
+        public IEnumerable<string> VehicleTypes { get; set; }
+        public string PhoneNumber { get; set; }
+    }
+
+    public class UpdateLocationDTO
+    {
+        [Required]
+        [Range(-90, 90)]
+        public decimal Latitude { get; set; }
+
+        [Required]
+        [Range(-180, 180)]
+        public decimal Longitude { get; set; }
+    }
+
+    public class UpdateLocationByAddressDTO
+    {
+        [Required]
+        [StringLength(200, MinimumLength = 5)]
+        public string Address { get; set; } = string.Empty;
+    }
+
+  
 }

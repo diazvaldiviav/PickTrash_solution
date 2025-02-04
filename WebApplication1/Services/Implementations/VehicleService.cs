@@ -41,6 +41,8 @@ namespace WebApplication1.Services.Implementations
                 // Crear el vehículo
                 var vehicle = _mapper.Map<Vehicle>(dto);
 
+             
+
 
                 // Asignar la categoría de transporte, si existe
                var Category = await _transportCategoryRepository.GetByCategoryNameAsync(dto.TransportCategoryName);

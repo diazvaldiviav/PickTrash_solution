@@ -62,12 +62,20 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 //Mappeo de entidades
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
+//unit of work
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+//geolocation
+builder.Services.AddScoped<IGeocodingService, GoogleGeocodingService>();
+
 
 //injeection dependencies
 builder.Services.AddScoped<IAuthServices, AuthService>();
 builder.Services.AddScoped<IUserServices, UserService>();
 builder.Services.AddScoped<IVehicleServices, VehicleService>();
 builder.Services.AddScoped<ITransportCategory, TransportCategoryService>();
+builder.Services.AddScoped<IDriverService, DriverService>();
+builder.Services.AddScoped<IRequestService, RequestService>();
 
 
 
@@ -77,6 +85,7 @@ builder.Services.AddScoped<IClientRepository, ClientRepository>();
 builder.Services.AddScoped<IDriverRepository, DriverRepository>();
 builder.Services.AddScoped<IVehicleRepository, VehicleRepository>();
 builder.Services.AddScoped<ITransportCategoryRepository, TransportCategoryRepository>();
+builder.Services.AddScoped<IRequestRepository, RequestRepository>();
 
 // Configuración de CORS
 builder.Services.AddCors(options =>
@@ -87,9 +96,12 @@ builder.Services.AddCors(options =>
             builder
                 .AllowAnyOrigin()       // Permite cualquier origen
                 .AllowAnyMethod()       // Permite cualquier método HTTP (GET, POST, etc.)
-                .AllowAnyHeader()       // Permite cualquier encabezado
+                .AllowAnyHeader();      // Permite cualquier encabezado
         });
 });
+
+
+builder.Services.AddHttpClient();
 
 
 
@@ -98,6 +110,9 @@ builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("RequireDriverRole", policy =>
         policy.RequireRole("Driver"));
+
+    options.AddPolicy("RequireClientRole", policy =>
+        policy.RequireRole("Client"));
 });
 
 // Configuración de Swagger

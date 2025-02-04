@@ -8,5 +8,6 @@
         // Relación con User
         public int UserId { get; set; }
         public User User { get; set; } = null!;
+        public ICollection<Request> Requests { get; set; } = new List<Request>();
     }
 }

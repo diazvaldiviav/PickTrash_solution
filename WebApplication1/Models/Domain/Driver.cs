@@ -14,5 +14,6 @@
 
         // Relación muchos a muchos con Vehicle
         public ICollection<DriverVehicle> DriverVehicles { get; set; } = new List<DriverVehicle>();
+        public ICollection<Request> Requests { get; set; } = new List<Request>();
     }
 }

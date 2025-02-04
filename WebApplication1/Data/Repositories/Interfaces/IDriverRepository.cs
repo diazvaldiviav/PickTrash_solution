@@ -5,13 +5,13 @@ namespace WebApplication1.Data.Repositories.Interfaces
     public interface IDriverRepository : IGenericRepository<Driver>
     {
         // Consultas básicas
-        Task<Driver?> GetByUserIdAsync(int userId);
         Task<Driver?> GetWithUserDetailsAsync(int driverId);
         Task<Driver?> GetWithVehiclesAsync(int driverId);
 
         // Consultas de estado y ubicación
         Task<IEnumerable<Driver>> GetActiveDriversAsync();
         Task<IEnumerable<Driver>> GetDriversByLocationAsync(decimal latitude, decimal longitude, int radiusInKm);
+        Task<(decimal Latitude, decimal Longitude)?> GetLocationAsync(int driverId);
         Task UpdateLocationAsync(int driverId, decimal latitude, decimal longitude);
         Task UpdateActiveStatusAsync(int driverId, bool isActive);
 

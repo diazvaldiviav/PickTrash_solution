@@ -2,6 +2,7 @@
 using WebApplication1.Common.Exceptions;
 using WebApplication1.Data.Repositories.Interfaces;
 using WebApplication1.Models.Domain;
+using WebApplication1.Models.Dtos.UserDto;
 
 namespace WebApplication1.Data.Repositories.Implementations
 {
@@ -12,7 +13,7 @@ namespace WebApplication1.Data.Repositories.Implementations
         }
 
 
-        public async Task<Driver?> GetByUserIdAsync(int userId)
+        public override async Task<Driver?> GetByIdAsync(int userId)
         {
             return await _dbSet
                 .Include(d => d.User)
@@ -77,6 +78,20 @@ namespace WebApplication1.Data.Repositories.Implementations
             driver.Latitude = latitude;
             driver.Longitude = longitude;
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<(decimal Latitude, decimal Longitude)?> GetLocationAsync(int driverId)
+        {
+            var driver = await _dbSet
+                .Where(d => d.Id == driverId)
+                .Select(d => new { d.Latitude, d.Longitude })
+                .FirstOrDefaultAsync();
+
+            if (driver != null)
+            {
+                return (driver.Latitude, driver.Longitude);
+            }
+            return null;
         }
 
         public async Task UpdateActiveStatusAsync(int driverId, bool isActive)
@@ -190,5 +205,8 @@ namespace WebApplication1.Data.Repositories.Implementations
 
             return true;
         }
+
+
+       
     }
 }

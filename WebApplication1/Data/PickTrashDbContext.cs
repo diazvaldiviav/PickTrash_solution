@@ -17,6 +17,9 @@ namespace WebApplication1.Data
         public DbSet<Vehicle> Vehicles { get; set; }
         public DbSet<TransportCategory> TransportCategories { get; set; }
         public DbSet<DriverVehicle> DriverVehicles { get; set; }
+        public DbSet<Request> Requests { get; set; }
+        public DbSet<RequestHistory> RequestHistories { get; set; }
+        public DbSet<RequestMedia> RequestMedias { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -26,6 +29,9 @@ namespace WebApplication1.Data
             modelBuilder.ApplyConfiguration(new VehicleConfiguration());
             modelBuilder.ApplyConfiguration(new TransportCategoryConfiguration());
             modelBuilder.ApplyConfiguration(new DriverVehicleConfiguration());
+            modelBuilder.ApplyConfiguration(new RequestConfiguration());
+            modelBuilder.ApplyConfiguration(new RequestHistoryConfiguration());
+            modelBuilder.ApplyConfiguration(new RequestMediaConfiguration());
         }
 
     }
