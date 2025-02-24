@@ -69,7 +69,7 @@ namespace WebApplication1.Data.Repositories.Implementations
                 .ToListAsync();
         }
 
-        public async Task UpdateLocationAsync(int driverId, decimal latitude, decimal longitude)
+        public async Task UpdateLocationAsync(int driverId, double latitude, double longitude)
         {
             var driver = await _dbSet.FindAsync(driverId);
             if (driver == null)
@@ -80,7 +80,7 @@ namespace WebApplication1.Data.Repositories.Implementations
             await _context.SaveChangesAsync();
         }
 
-        public async Task<(decimal Latitude, decimal Longitude)?> GetLocationAsync(int driverId)
+        public async Task<(double Latitude, double Longitude)?> GetLocationAsync(int driverId)
         {
             var driver = await _dbSet
                 .Where(d => d.Id == driverId)
@@ -169,7 +169,7 @@ namespace WebApplication1.Data.Repositories.Implementations
 
         //Authenticating driver
 
-        public async Task<Driver> RegisterDriverAsync(Driver driver)
+        public async Task<Driver?> RegisterDriverAsync(Driver driver)
         {
             // Por defecto, un conductor nuevo está inactivo hasta verificar documentos pero sera para mas tarde
            // driver.IsAvailable = false;

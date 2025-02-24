@@ -162,9 +162,10 @@ namespace WebApplication1.Services.Implementations
         public async Task<AuthResponseDTO> LoginAsync(LoginDTO dto)
         {
             // Buscar usuario por username
-            var user = await _userRepository.GetByUsernameAsync(dto.UserName);
+            var user = await _userRepository.GetByUsernameAsync(dto.UserName, dto.Role);
+
             if (user == null)
-                throw new BadRequestException("Credenciales inválidas");
+                throw new BadRequestException("Usuario no registrado");
 
             // Verificar que el rol coincida con el de la app
             if (user.Role != dto.Role)

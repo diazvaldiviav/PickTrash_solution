@@ -7,7 +7,7 @@ namespace WebApplication1.Data.Repositories.Interfaces
     {
         // Consultas básicas
         Task<User?> GetByEmailAsync(string email);
-        Task<User?> GetByUsernameAsync(string username);
+        Task<User?> GetByUsernameAsync(string username, UserRole role);
         Task<User?> GetWithRoleAsync(int userId);
 
         // Validaciones

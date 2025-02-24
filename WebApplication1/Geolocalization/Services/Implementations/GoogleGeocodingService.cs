@@ -1,7 +1,8 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
+using WebApplication1.Geolocalization.Services.Interfaces;
 
-namespace WebApplication1.Helpers
+namespace WebApplication1.Geolocalization.Services.Implementations
 {
     public class GoogleGeocodingService : IGeocodingService
     {
@@ -19,7 +20,7 @@ namespace WebApplication1.Helpers
             _httpClient = httpClient;
         }
 
-        public async Task<(decimal Latitude, decimal Longitude)?> GetCoordinatesAsync(string address)
+        public async Task<(double Latitude, double Longitude)?> GetCoordinatesAsync(string address)
         {
             try
             {
@@ -44,7 +45,7 @@ namespace WebApplication1.Helpers
                     result.Results[0]?.Geometry?.Location != null)
                 {
                     var location = result.Results[0].Geometry.Location;
-                    return ((decimal)location.Lat, (decimal)location.Lng);
+                    return ((double)location.Lat, (double)location.Lng);
                 }
 
                 return null;
@@ -56,7 +57,7 @@ namespace WebApplication1.Helpers
             }
         }
 
-        public async Task<string?> GetAddressAsync(decimal latitude, decimal longitude)
+        public async Task<string?> GetAddressAsync(double latitude, double longitude)
         {
             try
             {

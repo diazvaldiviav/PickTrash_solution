@@ -36,11 +36,11 @@ namespace WebApplication1.Models.Dtos.UserDto
     {
         [Required]
         [Range(-90, 90)]
-        public decimal Latitude { get; set; }
+        public double Latitude { get; set; }
 
         [Required]
         [Range(-180, 180)]
-        public decimal Longitude { get; set; }
+        public double Longitude { get; set; }
     }
 
     public class UpdateLocationByAddressDTO

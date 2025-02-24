@@ -11,6 +11,10 @@ using Serilog;
 using WebApplication1.Data.Repositories.Implementations;
 using WebApplication1.Data.Repositories.Interfaces;
 using Microsoft.OpenApi.Models;
+using WebApplication1.Geolocalization.Services.Implementations;
+using WebApplication1.Geolocalization.Services.Interfaces;
+using WebApplication1.Geolocalization;
+using Microsoft.Azure.SignalR;
 
 
 
@@ -24,6 +28,10 @@ Log.Logger = new LoggerConfiguration()
 
 
 var builder = WebApplication.CreateBuilder(args);
+
+//signalR
+builder.Services.AddSignalR();
+
 
 // Agregar Serilog al builder
 builder.Host.UseSerilog();
@@ -67,6 +75,8 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 //geolocation
 builder.Services.AddScoped<IGeocodingService, GoogleGeocodingService>();
+builder.Services.AddScoped<ITrackingService, TrackingService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
 
 //injeection dependencies
@@ -79,6 +89,8 @@ builder.Services.AddScoped<IRequestService, RequestService>();
 
 
 
+
+
 // Repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
@@ -86,6 +98,11 @@ builder.Services.AddScoped<IDriverRepository, DriverRepository>();
 builder.Services.AddScoped<IVehicleRepository, VehicleRepository>();
 builder.Services.AddScoped<ITransportCategoryRepository, TransportCategoryRepository>();
 builder.Services.AddScoped<IRequestRepository, RequestRepository>();
+builder.Services.AddScoped<IRequestHistoryRepository, RequestHistoryRepository>();
+
+
+//CLIENT
+builder.Services.AddHttpClient();
 
 // Configuración de CORS
 builder.Services.AddCors(options =>
@@ -101,7 +118,7 @@ builder.Services.AddCors(options =>
 });
 
 
-builder.Services.AddHttpClient();
+
 
 
 
@@ -156,10 +173,37 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+// Configuración de SignalR - MOVER AQUÍ, antes de builder.Build()
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddSignalR(options =>
+    {
+        options.EnableDetailedErrors = true;
+        options.MaximumReceiveMessageSize = 102400;
+    });
+}
+else
+{
+    var signalRConnectionString = builder.Configuration["Azure:SignalR:ConnectionString"];
+    if (string.IsNullOrEmpty(signalRConnectionString))
+    {
+        throw new InvalidOperationException("Azure SignalR Connection String no está configurada");
+    }
+
+    builder.Services.AddSignalR().AddAzureSignalR(options =>
+    {
+        options.ConnectionString = signalRConnectionString;
+        options.ServerStickyMode = ServerStickyMode.Required;
+    });
+}
+
+
 
 
 
 var app = builder.Build();
+
+
 
 // Sembrar datos de prueba
 using (var scope = app.Services.CreateScope())
@@ -185,6 +229,10 @@ app.UseCors("AllowAll");
 app.UseAuthentication();
 
 app.UseAuthorization();
+
+// SignalR Hubs
+app.MapHub<LocationHub>("/locationHub");
+app.MapHub<NotificationHub>("/notificationHub");
 
 app.MapControllers();
 

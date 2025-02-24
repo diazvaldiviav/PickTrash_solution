@@ -8,6 +8,8 @@ using WebApplication1.Services.Interfaces;
 using WebApplication1.Helpers;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Data.Repositories.Implementations;
+using WebApplication1.Geolocalization.Services.Interfaces;
+using WebApplication1.Geolocalization.Services.Implementations;
 
 
 namespace WebApplication1.Services.Implementations
@@ -21,6 +23,9 @@ namespace WebApplication1.Services.Implementations
         private readonly IDriverRepository _driverRepository;
         private readonly IGeocodingService _geocodingService;
         private readonly IClientRepository _clientRepository;
+        private readonly ITrackingService _trackingService;
+        private readonly INotificationService _notificationService;
+        private readonly IRequestHistoryRepository _requestHistoryRepository;
 
         public RequestService(
             IRequestRepository requestRepository,
@@ -29,7 +34,10 @@ namespace WebApplication1.Services.Implementations
             ILogger<RequestService> logger,
             IDriverRepository driverRepository,
             IGeocodingService geocodingService,
-            IClientRepository clientRepository
+            IClientRepository clientRepository,
+            ITrackingService trackingService,
+            INotificationService notificationService,
+            IRequestHistoryRepository requestHistoryRepository
             )
         {
             _requestRepository = requestRepository;
@@ -39,6 +47,9 @@ namespace WebApplication1.Services.Implementations
             _driverRepository = driverRepository;
             _geocodingService = geocodingService;
             _clientRepository = clientRepository;
+            _trackingService = trackingService;
+            _notificationService = notificationService;
+            _requestHistoryRepository = requestHistoryRepository;
         }
 
         public async Task<RequestDTO> GetRequestByIdAsync(int id)
@@ -212,26 +223,55 @@ namespace WebApplication1.Services.Implementations
             }
         }
 
-        public async Task<RequestDTO> StartServiceAsync(int requestId)
+        public async Task<RequestDTO> StartServiceAsync(int requestId, double driverLat, double driverLng)
         {
             var request = await _requestRepository.GetByIdAsync(requestId);
             if (request == null)
-                throw new NotFoundException($"Request with ID {requestId} not found");
+                throw new NotFoundException($"Request {requestId} not found");
 
+            // Validar estado actual
             if (request.Status != RequestStatus.Accepted)
-                throw new BadRequestException("Request must be in Accepted status to start service");
+                throw new BadRequestException("Request must be in CONFIRMED status to start service");
 
-            if (request.ScheduledDate.Date != DateTime.UtcNow.Date)
-                throw new BadRequestException("Service can only be started on the scheduled date");
+            try
+            {
+                var oldStatus = request.Status;
+                request.Status = RequestStatus.InProgress;
+                request.LastModifiedAt = DateTime.UtcNow;
 
-            request.Status = RequestStatus.InProgress;
-            await _requestRepository.UpdateStatusAsync(requestId, RequestStatus.InProgress, "Driver");
-            await _unitOfWork.SaveChangesAsync();
+                // Crear historial
+                var history = new RequestHistory
+                {
+                    RequestId = requestId,
+                    OldStatus = oldStatus,
+                    NewStatus = RequestStatus.InProgress,
+                    ChangedAt = DateTime.UtcNow,
+                    ChangedBy = request.DriverName,
+                    ChangeReason = "Driver started the service"
+                };
 
-            _logger.LogInformation("Service started for request {RequestId}", requestId);
-            return _mapper.Map<RequestDTO>(request);
+                await _requestHistoryRepository.AddAsync(history);
+
+                // Iniciar el tracking con la ubicación proporcionada
+                await _trackingService.StartTrackingAsync(
+                    requestId,
+                    driverLat,    // Usando la ubicación recibida
+                    driverLng     // del conductor
+                );
+
+                await _unitOfWork.SaveChangesAsync();
+
+                // Notificar al cliente
+                await _notificationService.NotifyRequestStatusChangeAsync(request);
+
+                return _mapper.Map<RequestDTO>(request);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error starting service for request {RequestId}", requestId);
+                throw;
+            }
         }
-
 
         public async Task<RequestDTO> CompleteServiceAsync(int requestId)
         {

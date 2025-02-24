@@ -18,7 +18,7 @@ namespace WebApplication1.Services.Interfaces
 
         // Operaciones de estado
         Task<RequestDTO> AcceptRequestAsync(int requestId, int driverId);
-        Task<RequestDTO> StartServiceAsync(int requestId);
+        Task<RequestDTO> StartServiceAsync(int requestId, double driverLat, double driverLng);
         Task<RequestDTO> CompleteServiceAsync(int requestId);
         Task<RequestDTO> CancelRequestAsync(int requestId, string reason);
 

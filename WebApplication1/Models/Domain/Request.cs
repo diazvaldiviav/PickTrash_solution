@@ -16,8 +16,8 @@ namespace WebApplication1.Models.Domain
         // Información de ubicación
         public string PickupAddress { get; set; }
         public string DropoffAddress { get; set; }
-        public decimal PickupLatitude { get; set; }
-        public decimal PickupLongitude { get; set; }
+        public double PickupLatitude { get; set; }
+        public double PickupLongitude { get; set; }
 
         // Información temporal
         public DateTime CreatedAt { get; set; }

@@ -11,8 +11,8 @@ namespace WebApplication1.Data.Repositories.Interfaces
         // Consultas de estado y ubicación
         Task<IEnumerable<Driver>> GetActiveDriversAsync();
         Task<IEnumerable<Driver>> GetDriversByLocationAsync(decimal latitude, decimal longitude, int radiusInKm);
-        Task<(decimal Latitude, decimal Longitude)?> GetLocationAsync(int driverId);
-        Task UpdateLocationAsync(int driverId, decimal latitude, decimal longitude);
+        Task<(double Latitude, double Longitude)?> GetLocationAsync(int driverId);
+        Task UpdateLocationAsync(int driverId, double latitude, double longitude);
         Task UpdateActiveStatusAsync(int driverId, bool isActive);
 
         // Gestión de vehículos

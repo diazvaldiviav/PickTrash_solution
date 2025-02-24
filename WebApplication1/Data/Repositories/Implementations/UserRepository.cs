@@ -18,10 +18,10 @@ namespace WebApplication1.Data.Repositories.Implementations
                 .FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
         }
 
-        public async Task<User?> GetByUsernameAsync(string username)
+        public async Task<User?> GetByUsernameAsync(string username, UserRole role)
         {
             return await _dbSet
-                .FirstOrDefaultAsync(u => u.UserName.ToLower() == username.ToLower());
+                .FirstOrDefaultAsync(u => u.UserName.ToLower() == username.ToLower() && u.Role == role);
         }
 
         public async Task<bool> IsPhoneNumberUniqueAsync(string phoneNumber)

@@ -45,7 +45,7 @@ namespace WebApplication1.Data.Repositories.Implementations
 
         //register client
 
-        public async Task<Client> RegisterClientAsync(Client client)
+        public async Task<Client?> RegisterClientAsync(Client client)
         {
             await _dbSet.AddAsync(client);
             await _context.SaveChangesAsync();

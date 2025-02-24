@@ -4,6 +4,7 @@ using WebApplication1.Models.Dtos.UserDto;
 using WebApplication1.Services.Interfaces;
 using WebApplication1.Helpers;
 using WebApplication1.Common.Exceptions;
+using WebApplication1.Geolocalization.Services.Interfaces;
 
 namespace WebApplication1.Services.Implementations
 {

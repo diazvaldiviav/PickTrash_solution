@@ -17,6 +17,7 @@ namespace WebApplication1.Models.Domain
         public DateTime ChangedAt { get; set; }
         public string ChangedBy { get; set; }
         public string? ChangeReason { get; set; }
+        public RequestStatus OldStatus { get; set; }
 
         // Información de precio (si hubo cambios)
         public decimal? PreviousPrice { get; set; }

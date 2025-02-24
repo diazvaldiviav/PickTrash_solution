@@ -155,8 +155,34 @@ namespace WebApplication1.Controllers
         {
             try
             {
-                var request = await _requestService.StartServiceAsync(id);
-                return Ok(request);
+                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
+
+                var driver = await _driverRepository.GetByIdAsync(userId);
+
+                if (driver == null)
+                {
+                    return NotFound("Driver not found");
+                }
+
+                // Verificar que el request pertenece al driver
+                var request = await _requestService.GetRequestByIdAsync(id);
+                if (request == null)
+                {
+                    return NotFound("Request not found");
+                }
+
+                if (request.DriverId != userId)
+                {
+                    return Forbid("Not authorized to start this service");
+                }
+
+                var updatedRequest = await _requestService.StartServiceAsync(
+                    id,
+                    driver.Latitude,
+                    driver.Longitude
+                );
+
+                return Ok(updatedRequest);
             }
             catch (NotFoundException ex)
             {
